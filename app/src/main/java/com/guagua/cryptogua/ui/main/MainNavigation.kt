@@ -7,8 +7,12 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object MainRoute
 
-fun NavGraphBuilder.mainScreen() {
+fun NavGraphBuilder.mainScreen(
+    navigateToSettings: () -> Unit
+) {
     composable<MainRoute> {
-        MainScreen()
+        MainScreen(
+            navigateToSettings = navigateToSettings
+        )
     }
 }

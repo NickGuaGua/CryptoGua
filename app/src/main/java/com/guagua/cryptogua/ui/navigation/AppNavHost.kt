@@ -9,6 +9,8 @@ import androidx.navigation.compose.NavHost
 import com.guagua.cryptogua.ui.main.MainRoute
 import com.guagua.cryptogua.ui.main.mainScreen
 import com.guagua.cryptogua.ui.market.marketScreen
+import com.guagua.cryptogua.ui.settings.navigateToSettingsScreen
+import com.guagua.cryptogua.ui.settings.settingsScreen
 
 @Composable
 fun AppNavHost(
@@ -22,7 +24,10 @@ fun AppNavHost(
         enterTransition = { EnterTransition.None },
         exitTransition = { ExitTransition.None }
     ) {
-        mainScreen()
+        mainScreen(
+            navigateToSettings = { navController.navigateToSettingsScreen() }
+        )
         marketScreen()
+        settingsScreen { navController.popBackStack() }
     }
 }

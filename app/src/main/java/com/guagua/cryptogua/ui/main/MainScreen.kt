@@ -28,11 +28,13 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.guagua.cryptogua.ui.WipScreen
 import com.guagua.cryptogua.ui.market.MarketsScreen
+import com.guagua.cryptogua.ui.wallet.WalletScreen
 import kotlinx.coroutines.launch
 
 @Composable
 fun MainScreen(
     viewModel: MainViewModel = hiltViewModel(),
+    navigateToSettings: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -82,9 +84,9 @@ fun MainScreen(
                 }
 
                 MainTab.Wallet -> {
-                    WipScreen(
+                    WalletScreen(
                         modifier = Modifier.fillMaxSize(),
-                        text = tab.title()
+                        navigateToSettings = navigateToSettings
                     )
                 }
             }
