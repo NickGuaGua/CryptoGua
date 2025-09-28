@@ -3,7 +3,8 @@ package com.guagua.cryptogua.ui.market
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.guagua.cryptogua.model.market.MarketRepository
+import com.guagua.cryptogua.domain.market.GetMarketsUseCase
+import com.guagua.cryptogua.domain.market.GetTickerMapUseCase
 import com.guagua.cryptogua.model.market.data.Market
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
@@ -17,7 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MarketsViewModel @Inject constructor(
-    val marketRepository: MarketRepository
+    private val getMarketsUseCase: GetMarketsUseCase,
+    private val getTickerMapUseCase: GetTickerMapUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MarketsScreenUiState())
@@ -29,9 +31,11 @@ class MarketsViewModel @Inject constructor(
 
     private val marketItemsFlow = combine(
         marketsFlow,
-        marketRepository.tickerFlow,
+        getTickerMapUseCase(),
         tabFlow
     ) { markets, tickerMap, tab ->
+        Log.d("Nick", "Markets: ${markets.size}, Tickers: ${tickerMap.size}, Tab: $tab")
+
         markets
             .filter { it.future == (tab == MarketTab.Futures) }
             .mapNotNull { market ->
@@ -75,13 +79,13 @@ class MarketsViewModel @Inject constructor(
     private fun loadMarkets() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, isError = false) }
-            runCatching {
-                val markets = marketRepository.getMarkets()
-                marketsFlow.emit(markets)
-            }.onFailure { e ->
-                Log.e("Nick", "Load markets error", e)
-                _state.update { it.copy(isLoading = false, isError = true) }
-            }
+            val markets = getMarketsUseCase()
+                .onFailure {
+                    Log.e("Nick", "Load markets error", it)
+                    _state.update { it.copy(isLoading = false, isError = true) }
+                }
+                .getOrNull() ?: return@launch
+            marketsFlow.emit(markets)
         }
     }
 }
