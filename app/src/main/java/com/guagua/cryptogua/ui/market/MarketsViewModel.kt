@@ -1,6 +1,5 @@
 package com.guagua.cryptogua.ui.market
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.guagua.cryptogua.domain.market.GetMarketsUseCase
@@ -8,12 +7,13 @@ import com.guagua.cryptogua.domain.market.GetTickerMapUseCase
 import com.guagua.cryptogua.model.market.data.Market
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,17 +25,15 @@ class MarketsViewModel @Inject constructor(
     private val _state = MutableStateFlow(MarketsScreenUiState())
     val state = _state.asStateFlow()
 
-    private val marketsFlow = MutableSharedFlow<List<Market>>(extraBufferCapacity = 1)
+    private val marketsFlow = MutableStateFlow<List<Market>?>(null)
 
     private val tabFlow = MutableStateFlow(_state.value.selectedTab)
 
     private val marketItemsFlow = combine(
-        marketsFlow,
+        marketsFlow.filterNotNull(),
         getTickerMapUseCase(),
         tabFlow
     ) { markets, tickerMap, tab ->
-        Log.d("Nick", "Markets: ${markets.size}, Tickers: ${tickerMap.size}, Tab: $tab")
-
         markets
             .filter { it.future == (tab == MarketTab.Futures) }
             .mapNotNull { market ->
@@ -54,8 +52,6 @@ class MarketsViewModel @Inject constructor(
     }
 
     init {
-        loadMarkets()
-
         viewModelScope.launch {
             marketItemsFlow
                 .collect { items ->
@@ -68,6 +64,7 @@ class MarketsViewModel @Inject constructor(
                     }
                 }
         }
+        loadMarkets()
     }
 
     fun retry() = loadMarkets()
@@ -81,7 +78,7 @@ class MarketsViewModel @Inject constructor(
             _state.update { it.copy(isLoading = true, isError = false) }
             val markets = getMarketsUseCase()
                 .onFailure {
-                    Log.e("Nick", "Load markets error", it)
+                    Timber.e("Load markets error")
                     _state.update { it.copy(isLoading = false, isError = true) }
                 }
                 .getOrNull() ?: return@launch

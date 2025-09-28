@@ -1,7 +1,7 @@
 package com.guagua.cryptogua.model.api
 
-import android.util.Log
 import com.guagua.cryptogua.model.error.CryptoGuaException
+import timber.log.Timber
 import javax.inject.Inject
 
 class ApiRequester @Inject constructor() {
@@ -11,7 +11,7 @@ class ApiRequester @Inject constructor() {
             if (it.success) {
                 it.data
             } else {
-                Log.e("Nick", "api error: ${it.code} / ${it.message}")
+                Timber.e("api error: ${it.code} / ${it.message}")
                 throw CryptoGuaException.Api(it.code, it.message)
             }
         }

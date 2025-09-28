@@ -1,6 +1,5 @@
 package com.guagua.cryptogua.ui.main
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.guagua.cryptogua.domain.connection.ConnectUseCase
@@ -31,7 +30,6 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             var retryCount = 0
             connectUseCase().retryWhen { throwable, _ ->
-                Log.w("Nick", "Retry, attempt: $retryCount")
                 _state.update {
                     it.copy(
                         hasConnectionIssue = retryCount >= 3

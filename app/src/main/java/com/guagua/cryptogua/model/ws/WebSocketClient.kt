@@ -1,6 +1,5 @@
 package com.guagua.cryptogua.model.ws
 
-import android.util.Log
 import com.guagua.cryptogua.model.error.CryptoGuaException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -15,6 +14,7 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -23,7 +23,7 @@ class WebSocketClient @Inject constructor(
     val okHttpClient: OkHttpClient,
     val request: Request,
     val json: Json
-) : WebSocketListener() {
+) {
 
     private var webSocket: WebSocket? = null
 
@@ -44,7 +44,7 @@ class WebSocketClient @Inject constructor(
 
             override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
                 super.onClosing(webSocket, code, reason)
-                Log.w("Nick", "onClosing")
+                Timber.w("onClosing")
                 _statusFlow.value = WsStatus.Close(code, reason)
                 releaseWebSocket()
                 close(
@@ -57,7 +57,7 @@ class WebSocketClient @Inject constructor(
 
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
                 super.onClosed(webSocket, code, reason)
-                Log.w("Nick", "onClosed")
+                Timber.w("onClosed")
                 _statusFlow.value = WsStatus.Close(code, reason)
                 releaseWebSocket()
                 close(
@@ -75,7 +75,7 @@ class WebSocketClient @Inject constructor(
             ) {
                 super.onFailure(webSocket, t, response)
                 t.printStackTrace()
-                Log.w("Nick", "onFailure: ${response?.code} / ${response?.message}", t)
+                Timber.w("onFailure: ${response?.code} / ${response?.message}")
                 _statusFlow.value = WsStatus.Failure(t)
                 releaseWebSocket()
 
@@ -93,7 +93,7 @@ class WebSocketClient @Inject constructor(
                     _messageFlow.tryEmit(json.decodeFromString<WsResponse>(text))
                 } catch (e: Exception) {
                     // Ignore parse error
-                    Log.w("Nick", "ws message parse error: $text", e)
+                    Timber.w("ws message parse error: $text")
                 }
             }
         }
@@ -105,7 +105,7 @@ class WebSocketClient @Inject constructor(
     fun connect(): Flow<WsStatus> = connectionFlow
 
     fun sendMessage(message: String): Boolean {
-        Log.i("Nick", "sendMessage: $message")
+        Timber.d("sendMessage: $message")
         return webSocket?.send(message) ?: false
     }
 
