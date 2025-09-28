@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -38,10 +39,24 @@ fun MainScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    MainScreen(
+        modifier = Modifier.fillMaxSize(),
+        state = state,
+        navigateToSettings = navigateToSettings
+    )
+}
+
+@Composable
+fun MainScreen(
+    modifier: Modifier = Modifier,
+    state: MainScreenUiState,
+    navigateToSettings: () -> Unit
+) {
     val pagerState = rememberPagerState { 4 }
     val scope = rememberCoroutineScope()
 
     Scaffold(
+        modifier = modifier,
         bottomBar = {
             Column {
                 if (state.isConnecting) {
@@ -95,7 +110,7 @@ fun MainScreen(
 }
 
 @Composable
-fun BottomAppBarContent(
+private fun BottomAppBarContent(
     modifier: Modifier = Modifier,
     selected: MainTab = MainTab.MARKET,
     onClick: (MainTab) -> Unit = { _ -> }
@@ -132,4 +147,10 @@ fun BottomAppBarContent(
             )
         }
     }
+}
+
+@Preview
+@Composable
+private fun BottomAppBarPreview() {
+    BottomAppBarContent()
 }

@@ -35,9 +35,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.collections.immutable.toImmutableList
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -60,8 +64,8 @@ fun MarketsScreen(
 fun MarketsScreen(
     modifier: Modifier = Modifier,
     state: MarketsScreenUiState,
-    onRetry: () -> Unit = { },
-    onTabClick: (MarketTab) -> Unit
+    onRetry: () -> Unit = {},
+    onTabClick: (MarketTab) -> Unit = {}
 ) {
     Box(modifier = modifier) {
         when {
@@ -88,7 +92,7 @@ fun MarketsScreen(
 @Composable
 private fun LoadingContent(modifier: Modifier = Modifier) {
     Box(
-        modifier = modifier,
+        modifier = modifier.background(MaterialTheme.colorScheme.surface),
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator()
@@ -101,7 +105,7 @@ private fun ErrorContent(
     onRetryClick: () -> Unit = { }
 ) {
     Box(
-        modifier = modifier,
+        modifier = modifier.background(MaterialTheme.colorScheme.surface),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -205,4 +209,57 @@ fun Double.formatValue(multiplier: Int = 1, scale: Int): String {
         .setScale(scale, RoundingMode.DOWN)
         .stripTrailingZeros() // 去掉多餘的 0
         .toPlainString()
+}
+
+class MarketsParamProvider : PreviewParameterProvider<MarketsScreenUiState> {
+    override val values: Sequence<MarketsScreenUiState>
+        get() = sequenceOf(
+            MarketsScreenUiState(),
+            MarketsScreenUiState(isLoading = true),
+            MarketsScreenUiState(isError = true),
+            MarketsScreenUiState(
+                items = listOf(
+                    MarketItemUiState(
+                        id = "BTCUSDT",
+                        name = "Bitcoin",
+                        symbol = "BTCUSDT",
+                        price = 30000.12345,
+                        multiplier = 1,
+                        scale = 2
+                    ),
+                    MarketItemUiState(
+                        id = "ETHUSDT",
+                        name = "Ethereum",
+                        symbol = "ETHUSDT",
+                        price = 2000.54321,
+                        multiplier = 1,
+                        scale = 2
+                    ),
+                    MarketItemUiState(
+                        id = "XRPUSDT",
+                        name = "Ripple",
+                        symbol = "XRPUSDT",
+                        price = 0.456789,
+                        multiplier = 1,
+                        scale = 4
+                    ),
+                    MarketItemUiState(
+                        id = "DOGEUSDT",
+                        name = "Dogecoin",
+                        symbol = "DOGEUSDT",
+                        price = 0.123456,
+                        multiplier = 1,
+                        scale = 4
+                    )
+                ).toImmutableList(),
+            )
+        )
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MarketsScreenPreview(
+    @PreviewParameter(MarketsParamProvider::class) state: MarketsScreenUiState
+) {
+    MarketsScreen(state = state) { }
 }
