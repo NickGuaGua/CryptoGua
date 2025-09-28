@@ -12,4 +12,6 @@ class ConnectionRepository @Inject constructor(
     val connectionStatusFlow = webSocketClient.statusFlow
 
     suspend fun connect() = webSocketClient.connect()
+
+    fun sendMessage(message: String) = webSocketClient.sendMessage(message)
 }

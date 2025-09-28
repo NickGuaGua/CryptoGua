@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">CryptoGua</string>
+
+    <!--  Main Tab  -->
+    <string name="tab_market">Market</string>
+    <string name="tab_convert">Convert</string>
+    <string name="tab_earn">Earn</string>
+    <string name="tab_wallet">Wallet</string>
+
+    <!--  Market Tab  -->
+    <string name="market_tab_spot">Spot</string>
+    <string name="market_tab_futures">Futures</string>
 </resources>

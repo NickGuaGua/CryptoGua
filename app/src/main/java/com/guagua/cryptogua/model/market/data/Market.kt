@@ -31,7 +31,7 @@ data class Market(
     val globalDisplayQuote: String,
     val displayOrder: Int,
     val isFavorite: Boolean,
-    val availableQuotes: List<QuoteBean>,
+    val availableQuotes: List<Quote>,
     val initialMarginPercentage: Double,
     val maintenanceMarginPercentage: Double,
     val prediction: Boolean,
@@ -70,7 +70,7 @@ data class Market(
                 globalDisplayQuote = globalDisplayQuote.orEmpty(),
                 displayOrder = displayOrder ?: 0,
                 isFavorite = isFavorite ?: false,
-                availableQuotes = availableQuotes ?: emptyList(),
+                availableQuotes = availableQuotes?.mapNotNull { Quote.from(it) }.orEmpty(),
                 initialMarginPercentage = initialMarginPercentage ?: 0.0,
                 maintenanceMarginPercentage = maintenanceMarginPercentage ?: 0.0,
                 prediction = prediction ?: false,
@@ -78,6 +78,68 @@ data class Market(
                 fundingTime = fundingTime ?: 0L,
                 userCustomize = userCustomize ?: false,
                 favorite = favorite ?: false
+            )
+        }
+    }
+}
+
+data class Quote(
+    val id: Int,
+    val sortId: Int,
+    val name: String,
+    val shortName: String,
+    val symbol: String,
+    val type: Int,
+    val status: Int,
+    val gmtCreate: Long,
+    val gmtModified: Long,
+    val decimals: Int,
+    val isDefault: Int,
+    val minSize: Double,
+    val maxSize: Double,
+    val increment: Double,
+    val isSettlement: Int,
+    val depositMin: Double,
+    val isStable: Boolean,
+    val isQuote: Boolean,
+    val isSupportAddressExtension: Boolean,
+    val multiplier: Int,
+    val scale: Int,
+    val tier: String,
+    val fiat: Boolean,
+    val typeEnum: String,
+    val crypto: Boolean,
+    val logo: String
+) {
+    companion object {
+        fun from(bean: QuoteBean): Quote? = with(bean) {
+            Quote(
+                id = id ?: return@with null,
+                sortId = sortId ?: 0,
+                name = name.orEmpty(),
+                shortName = shortName.orEmpty(),
+                symbol = symbol.orEmpty(),
+                type = type ?: 0,
+                status = status ?: 0,
+                gmtCreate = gmtCreate ?: 0L,
+                gmtModified = gmtModified ?: 0L,
+                decimals = decimals ?: 0,
+                isDefault = isDefault ?: 0,
+                minSize = minSize ?: 0.0,
+                maxSize = maxSize ?: 0.0,
+                increment = increment ?: 0.0,
+                isSettlement = isSettlement ?: 0,
+                depositMin = depositMin ?: 0.0,
+                isStable = isStable ?: false,
+                isQuote = isQuote ?: false,
+                isSupportAddressExtension = isSupportAddressExtension ?: false,
+                multiplier = multiplier ?: 0,
+                scale = scale ?: 0,
+                tier = tier.orEmpty(),
+                fiat = fiat ?: false,
+                typeEnum = typeEnum.orEmpty(),
+                crypto = crypto ?: false,
+                logo = logo.orEmpty()
             )
         }
     }

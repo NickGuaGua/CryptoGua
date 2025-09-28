@@ -3,7 +3,6 @@ package com.guagua.cryptogua.model.ws
 import android.util.Log
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
@@ -33,8 +32,6 @@ class WebSocketClient @Inject constructor(
         statusFlow.value = WsStatus.Connecting
         releaseWebSocket()
         webSocket = okHttpClient.newWebSocket(request, this)
-        statusFlow.first { it == WsStatus.Connected }
-        sendMessage("""{"op": "subscribe", "args": [${WsTopic.entries.joinToString(",") { "\"${it.key}\"" }}]}""")
     }
 
     override fun onOpen(webSocket: WebSocket, response: Response) {
@@ -44,12 +41,14 @@ class WebSocketClient @Inject constructor(
 
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
         super.onClosing(webSocket, code, reason)
+        Log.w("Nick", "onClosing")
         statusFlow.value = WsStatus.Close(code, reason)
         releaseWebSocket()
     }
 
     override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
         super.onClosed(webSocket, code, reason)
+        Log.w("Nick", "onClosed")
         statusFlow.value = WsStatus.Close(code, reason)
         releaseWebSocket()
     }
@@ -60,6 +59,8 @@ class WebSocketClient @Inject constructor(
         response: Response?
     ) {
         super.onFailure(webSocket, t, response)
+        t.printStackTrace()
+        Log.w("Nick", "onFailure: ${response?.code} / ${response?.message}", t)
         statusFlow.value = WsStatus.Failure(t)
         releaseWebSocket()
     }
@@ -75,6 +76,7 @@ class WebSocketClient @Inject constructor(
     }
 
     fun sendMessage(message: String): Boolean {
+        Log.i("Nick", "sendMessage: $message")
         return webSocket?.send(message) ?: false
     }
 
