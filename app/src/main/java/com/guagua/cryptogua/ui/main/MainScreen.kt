@@ -1,5 +1,7 @@
 package com.guagua.cryptogua.ui.main
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -58,24 +60,16 @@ fun MainScreen(
     Scaffold(
         modifier = modifier,
         bottomBar = {
-            Column {
-                if (state.isConnecting) {
-                    LinearProgressIndicator(
-                        modifier = Modifier
-                            .height(3.dp)
-                            .fillMaxWidth()
-                    )
-                }
-                BottomAppBar {
-                    BottomAppBarContent(
-                        selected = MainTab.entries[pagerState.currentPage]
-                    ) {
-                        scope.launch {
-                            pagerState.scrollToPage(it.ordinal)
-                        }
+            BottomBar(
+                currentTab = MainTab.entries[pagerState.currentPage],
+                isConnecting = state.isConnecting,
+                hasConnectionIssue = state.hasConnectionIssue,
+                onTabClick = {
+                    scope.launch {
+                        pagerState.scrollToPage(it.ordinal)
                     }
                 }
-            }
+            )
         }
     ) { contentPadding ->
         HorizontalPager(
@@ -106,6 +100,49 @@ fun MainScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun BottomBar(
+    modifier: Modifier = Modifier,
+    currentTab: MainTab,
+    isConnecting: Boolean,
+    hasConnectionIssue: Boolean,
+    onTabClick: (MainTab) -> Unit = {}
+) {
+    Column(modifier = modifier) {
+        AnimatedVisibility(visible = hasConnectionIssue) {
+            ConnectionIssue(modifier = Modifier.fillMaxWidth())
+        }
+        if (isConnecting) {
+            LinearProgressIndicator(
+                modifier = Modifier
+                    .height(3.dp)
+                    .fillMaxWidth()
+            )
+        }
+        BottomAppBar {
+            BottomAppBarContent(
+                selected = currentTab,
+                onClick = onTabClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun ConnectionIssue(modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier
+            .background(MaterialTheme.colorScheme.error)
+            .padding(
+                horizontal = 16.dp,
+                vertical = 8.dp
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = "Trying to reconnect…", color = MaterialTheme.colorScheme.onError)
     }
 }
 
@@ -151,6 +188,11 @@ private fun BottomAppBarContent(
 
 @Preview
 @Composable
-private fun BottomAppBarPreview() {
-    BottomAppBarContent()
+private fun BottomBarPreview() {
+    BottomBar(
+        modifier = Modifier.fillMaxWidth(),
+        currentTab = MainTab.MARKET,
+        isConnecting = true,
+        hasConnectionIssue = true
+    )
 }

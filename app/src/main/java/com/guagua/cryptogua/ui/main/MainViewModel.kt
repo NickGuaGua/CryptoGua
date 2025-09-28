@@ -29,13 +29,24 @@ class MainViewModel @Inject constructor(
 
     private fun connect() {
         viewModelScope.launch {
-            connectUseCase().retryWhen { throwable, attempt ->
-                Log.w("Nick", "Retry, attempt: $attempt")
+            var retryCount = 0
+            connectUseCase().retryWhen { throwable, _ ->
+                Log.w("Nick", "Retry, attempt: $retryCount")
+                _state.update {
+                    it.copy(
+                        hasConnectionIssue = retryCount >= 3
+                    )
+                }
                 delay(3000L)
-                throwable is CryptoGuaException
+                (throwable is CryptoGuaException).also {
+                    if (it) retryCount++ else retryCount = 0
+                }
             }.collect { status ->
                 _state.update {
-                    it.copy(isConnecting = status.isConnecting())
+                    it.copy(
+                        isConnecting = status.isConnecting(),
+                        hasConnectionIssue = false
+                    )
                 }
             }
         }

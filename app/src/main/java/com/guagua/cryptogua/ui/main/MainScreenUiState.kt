@@ -1,5 +1,6 @@
 package com.guagua.cryptogua.ui.main
 
 data class MainScreenUiState(
-    val isConnecting: Boolean = false
+    val isConnecting: Boolean = false,
+    val hasConnectionIssue: Boolean = false,
 )
