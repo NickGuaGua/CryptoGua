@@ -19,8 +19,8 @@ This project demonstrates:
 The app displays a markets view with Spot/Futures tabs, showing real-time prices via WebSocket
 streaming with automatic reconnection.
 <p align="center">
-  <img src="/img/demo.gif" style="margin-right:30px;"/>
-  <img src="/img/auto-reconnection.gif"/>
+  <img src="/img/demo.gif" width="33%" style="margin-right:10px;"/>
+  <img src="/img/auto-reconnection.gif" width="33%"/>
 </p>
 
 ## 🏗️ Architecture
