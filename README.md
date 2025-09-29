@@ -4,6 +4,10 @@
 A modern Android cryptocurrency trading application built with Jetpack Compose and Clean Architecture principles.
 </p>
 
+## 📦 Download
+
+Go to the [Releases](https://github.com/NickGuaGua/CryptoGua/releases) to download the latest APK.
+
 ## 🎯 Project Goals
 
 This project demonstrates:
